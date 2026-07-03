@@ -26,92 +26,82 @@ outline:none;
 "><div id='grid'>Cargando...</div>
 
 <script>
-  
+
 let tarjetas = [];
-  
-fetch('https://opensheet.elk.sh/10eWMMZKgZgag_qlV4MBD-pPz5PRL24NVnJAZliREAWs/1')
-.then(r=>r.json())
-.then(d=>{
-
-let g=document.getElementById('grid');
-
-g.innerHTML='';
-
-d.forEach(c=>{
-
-if(!c['LINK ACESTREAM']) return;
-
-let a=document.createElement('a');
-a.className='card';
-a.href=c['LINK ACESTREAM'];
-
-let i=document.createElement('img');
-i.src=c.IMATGE||'';
-i.onerror=()=>i.src='https://via.placeholder.com/150?text=Logo';
-
-let p=document.createElement('p');
-p.textContent=c.CANAL||'';
-
-a.append(i,p);
-
-tarjetas.push({
-    nombre:(c.CANAL||"").toUpperCase(),
-    elemento:a
-});
-  
-g.appendChild(a);
-
-});
-
-})
-.catch(()=>document.getElementById('grid').innerHTML='Error cargando datos');
-
-const lupa=document.getElementById("lupa");
-const buscar=document.getElementById("buscar");
-
-lupa.onclick=function(){
-
-if(buscar.style.display==="none"){
-
-buscar.style.display="block";
-buscar.focus();
-
-}else{
-
-buscar.style.display="none";
-buscar.value="";
-
-}
-
-}
-
-</script>
 
 const lupa = document.getElementById("lupa");
 const buscar = document.getElementById("buscar");
+const grid = document.getElementById("grid");
+
+fetch('https://opensheet.elk.sh/10eWMMZKgZgag_qlV4MBD-pPz5PRL24NVnJAZliREAWs/1')
+.then(r => r.json())
+.then(d => {
+
+    grid.innerHTML = "";
+
+    d.forEach(c => {
+
+        if (!c["LINK ACESTREAM"]) return;
+
+        let a = document.createElement("a");
+        a.className = "card";
+        a.href = c["LINK ACESTREAM"];
+
+        let i = document.createElement("img");
+        i.src = c.IMATGE || "";
+        i.onerror = function(){
+            this.src = "https://via.placeholder.com/150?text=Logo";
+        };
+
+        let p = document.createElement("p");
+        p.textContent = c.CANAL || "";
+
+        a.appendChild(i);
+        a.appendChild(p);
+
+        tarjetas.push({
+            nombre: (c.CANAL || "").toUpperCase(),
+            elemento: a
+        });
+
+        grid.appendChild(a);
+
+    });
+
+})
+.catch(() => {
+    grid.innerHTML = "Error cargando datos";
+});
+
 
 lupa.onclick = function () {
 
     if (buscar.style.display === "none") {
+
         buscar.style.display = "block";
         buscar.focus();
+
     } else {
+
         buscar.style.display = "none";
         buscar.value = "";
 
         tarjetas.forEach(t => {
             t.elemento.style.display = "";
         });
+
     }
+
 };
+
 
 buscar.addEventListener("input", function () {
 
-    let texto = this.value.toUpperCase();
+    let texto = this.value.toUpperCase().trim();
 
     tarjetas.forEach(t => {
 
-        if (t.nombre.includes(texto)) {
+        if (t.nombre.indexOf(texto) !== -1) {
             t.elemento.style.display = "";
         } else {
             t.elemento.style.display = "none";
@@ -119,5 +109,6 @@ buscar.addEventListener("input", function () {
 
     });
 
-});  
-  
+});
+
+</script>
