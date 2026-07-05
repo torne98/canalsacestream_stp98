@@ -51,6 +51,7 @@ const db = getFirestore(app);
 
 async function iniciar() {
 
+    // Obtener o crear ID del dispositivo
     let deviceId = localStorage.getItem("deviceId");
 
     if (!deviceId) {
@@ -75,7 +76,11 @@ async function iniciar() {
             align-items:center;
             font-family:Arial;
         ">
-            <div style="text-align:center;width:320px;">
+            <div style="
+                width:340px;
+                text-align:center;
+            ">
+
                 <h2>🔒 Solicitar acceso</h2>
 
                 <input
@@ -85,16 +90,17 @@ async function iniciar() {
                         width:100%;
                         padding:12px;
                         font-size:18px;
-                        border-radius:10px;
                         border:none;
+                        border-radius:10px;
                         margin-top:20px;
+                        box-sizing:border-box;
                     ">
 
                 <button
                     id="solicitar"
                     style="
-                        margin-top:20px;
                         width:100%;
+                        margin-top:20px;
                         padding:12px;
                         font-size:18px;
                         border:none;
@@ -103,6 +109,7 @@ async function iniciar() {
                     ">
                     Solicitar acceso
                 </button>
+
             </div>
         </div>
         `;
@@ -111,7 +118,7 @@ async function iniciar() {
 
             const nombre = document.getElementById("nombre").value.trim();
 
-            if (nombre === "") {
+            if (!nombre) {
                 alert("Introduce tu nombre.");
                 return;
             }
@@ -126,19 +133,40 @@ async function iniciar() {
                 ultimaConexion: ahora
             });
 
-            location.reload();
+            document.body.innerHTML = `
+            <div style="
+                background:#111;
+                color:white;
+                height:100vh;
+                display:flex;
+                justify-content:center;
+                align-items:center;
+                font-family:Arial;
+                text-align:center;
+                padding:20px;
+            ">
+                <div>
+                    <h2>🔒 Esperando autorización</h2>
+                    <p>Tu solicitud se ha enviado correctamente.</p>
+                    <p>Cuando el administrador la apruebe podrás acceder.</p>
+                </div>
+            </div>
+            `;
 
         };
 
         return;
     }
 
+    // YA EXISTE
     const datos = dispositivo.data();
 
+    // Actualizar última conexión
     await updateDoc(dispositivoRef, {
         ultimaConexion: new Date().toISOString()
     });
 
+    // Guardar fecha de aprobación la primera vez
     if (datos.permitido && !datos.fechaAprobacion) {
 
         await updateDoc(dispositivoRef, {
@@ -147,9 +175,36 @@ async function iniciar() {
 
     }
 
-    window.usuarioAutorizado = datos.permitido === true;
+    // Usuario aprobado
+    if (datos.permitido) {
 
-    window.dispatchEvent(new Event("firebase-ready"));
+        window.usuarioAutorizado = true;
+        window.dispatchEvent(new Event("firebase-ready"));
+
+    } else {
+
+        // Pendiente de aprobación
+        document.body.innerHTML = `
+        <div style="
+            background:#111;
+            color:white;
+            height:100vh;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            font-family:Arial;
+            text-align:center;
+            padding:20px;
+        ">
+            <div>
+                <h2>🔒 Esperando autorización</h2>
+                <p>Tu solicitud ya está registrada.</p>
+                <p>Cuando el administrador la apruebe podrás acceder automáticamente.</p>
+            </div>
+        </div>
+        `;
+
+    }
 
 }
 
