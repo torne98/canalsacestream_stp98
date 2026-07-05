@@ -27,21 +27,22 @@ outline:none;
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+
 import {
-  getFirestore,
-  doc,
-  getDoc,
-  setDoc
+    getFirestore,
+    doc,
+    getDoc,
+    setDoc
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBcFtDgrhHjRPqyZd2rUmVuCUzid9MOtHc",
-  authDomain: "acestream-stp98.firebaseapp.com",
-  projectId: "acestream-stp98",
-  storageBucket: "acestream-stp98.firebasestorage.app",
-  messagingSenderId: "134341062845",
-  appId: "1:134341062845:web:e14704c6ab243ae01707d4",
-  measurementId: "G-40NEPQLVJJ"
+    apiKey: "AIzaSyBcFtDgrhHjRPqyZd2rUmVuCUzid9MOtHc",
+    authDomain: "acestream-stp98.firebaseapp.com",
+    projectId: "acestream-stp98",
+    storageBucket: "acestream-stp98.firebasestorage.app",
+    messagingSenderId: "134341062845",
+    appId: "1:134341062845:web:e14704c6ab243ae01707d4",
+    measurementId: "G-40NEPQLVJJ"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -49,6 +50,7 @@ const db = getFirestore(app);
 
 async function iniciar() {
 
+    // Obtener o crear el identificador del dispositivo
     let deviceId = localStorage.getItem("deviceId");
 
     if (!deviceId) {
@@ -56,25 +58,41 @@ async function iniciar() {
         localStorage.setItem("deviceId", deviceId);
     }
 
-    console.log(deviceId);
+    console.log("Device ID:", deviceId);
 
+    // Referencia al documento del dispositivo
     const dispositivoRef = doc(db, "devices", deviceId);
 
+    // Buscar el dispositivo en Firestore
     const dispositivo = await getDoc(dispositivoRef);
 
     if (!dispositivo.exists()) {
 
+        // Si es la primera vez, crear el registro
         await setDoc(dispositivoRef, {
             permitido: false,
             fecha: new Date().toISOString()
         });
 
+        window.usuarioAutorizado = false;
+
+    } else {
+
+        // Leer si está autorizado
+        window.usuarioAutorizado = dispositivo.data().permitido === true;
+
     }
+
+    console.log("Autorizado:", window.usuarioAutorizado);
+
+    // Avisar al resto de la web de que Firebase ha terminado
+    window.dispatchEvent(new Event("firebase-ready"));
 
 }
 
-iniciar();
-
+iniciar().catch(error => {
+    console.error(error);
+});
 </script>
     
 <script>
@@ -85,46 +103,70 @@ const lupa = document.getElementById("lupa");
 const buscar = document.getElementById("buscar");
 const grid = document.getElementById("grid");
 
-fetch('https://opensheet.elk.sh/10eWMMZKgZgag_qlV4MBD-pPz5PRL24NVnJAZliREAWs/1')
-.then(r => r.json())
-.then(d => {
+window.addEventListener("firebase-ready", () => {
 
-    grid.innerHTML = "";
+    if (!window.usuarioAutorizado) {
 
-    d.forEach(c => {
+        grid.innerHTML = `
+            <div style="
+                display:flex;
+                justify-content:center;
+                align-items:center;
+                height:60vh;
+                font-size:28px;
+                color:white;
+                text-align:center;
+                font-family:Arial;
+            ">
+                🔒<br>Esperando autorización del administrador...
+            </div>
+        `;
 
-        if (!c["LINK ACESTREAM"]) return;
+        return;
 
-        let a = document.createElement("a");
-        a.className = "card";
-        a.href = c["LINK ACESTREAM"];
+    }
 
-        let i = document.createElement("img");
-        i.src = c.IMATGE || "";
-        i.onerror = function(){
-            this.src = "logo.png";
-        };
+    fetch('https://opensheet.elk.sh/10eWMMZKgZgag_qlV4MBD-pPz5PRL24NVnJAZliREAWs/1')
+    .then(r => r.json())
+    .then(d => {
 
-        let p = document.createElement("p");
-        p.textContent = c.CANAL || "";
+        grid.innerHTML = "";
 
-        a.appendChild(i);
-        a.appendChild(p);
+        d.forEach(c => {
 
-        tarjetas.push({
-            nombre: (c.CANAL || "").toUpperCase(),
-            elemento: a
+            if (!c["LINK ACESTREAM"]) return;
+
+            let a = document.createElement("a");
+            a.className = "card";
+            a.href = c["LINK ACESTREAM"];
+
+            let i = document.createElement("img");
+            i.src = c.IMATGE || "";
+            i.onerror = function () {
+                this.src = "logo.png";
+            };
+
+            let p = document.createElement("p");
+            p.textContent = c.CANAL || "";
+
+            a.appendChild(i);
+            a.appendChild(p);
+
+            tarjetas.push({
+                nombre: (c.CANAL || "").toUpperCase(),
+                elemento: a
+            });
+
+            grid.appendChild(a);
+
         });
 
-        grid.appendChild(a);
-
+    })
+    .catch(() => {
+        grid.innerHTML = "Error cargando datos";
     });
 
-})
-.catch(() => {
-    grid.innerHTML = "Error cargando datos";
 });
-
 
 lupa.onclick = function () {
 
@@ -152,7 +194,7 @@ buscar.addEventListener("input", function () {
 
     tarjetas.forEach(t => {
 
-        if (t.nombre.indexOf(texto) !== -1) {
+        if (t.nombre.includes(texto)) {
             t.elemento.style.display = "";
         } else {
             t.elemento.style.display = "none";
