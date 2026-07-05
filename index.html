@@ -59,7 +59,7 @@ if (!deviceId) {
 console.log(deviceId);
 
 // Comprobar si existe en Firestore
-const dispositivoRef = doc(db, "dispositivos", deviceId);
+const dispositivoRef = doc(db, "devices", deviceId);
 
 const dispositivo = await getDoc(dispositivoRef);
 
