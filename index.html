@@ -27,7 +27,6 @@ outline:none;
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-
 import {
   getFirestore,
   doc,
@@ -48,27 +47,33 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Obtener o crear el identificador del dispositivo
-let deviceId = localStorage.getItem("deviceId");
+async function iniciar() {
 
-if (!deviceId) {
-    deviceId = crypto.randomUUID();
-    localStorage.setItem("deviceId", deviceId);
+    let deviceId = localStorage.getItem("deviceId");
+
+    if (!deviceId) {
+        deviceId = crypto.randomUUID();
+        localStorage.setItem("deviceId", deviceId);
+    }
+
+    console.log(deviceId);
+
+    const dispositivoRef = doc(db, "devices", deviceId);
+
+    const dispositivo = await getDoc(dispositivoRef);
+
+    if (!dispositivo.exists()) {
+
+        await setDoc(dispositivoRef, {
+            permitido: false,
+            fecha: new Date().toISOString()
+        });
+
+    }
+
 }
 
-console.log(deviceId);
-
-// Comprobar si existe en Firestore
-const dispositivoRef = doc(db, "devices", deviceId);
-
-const dispositivo = await getDoc(dispositivoRef);
-
-if (!dispositivo.exists()) {
-    await setDoc(dispositivoRef, {
-        permitido: false,
-        fecha: new Date().toISOString()
-    });
-}
+iniciar();
 
 </script>
     
