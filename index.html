@@ -49,6 +49,21 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+function fechaHora() {
+
+    const d = new Date();
+
+    const año = d.getFullYear();
+    const mes = String(d.getMonth() + 1).padStart(2, "0");
+    const dia = String(d.getDate()).padStart(2, "0");
+
+    const hora = String(d.getHours()).padStart(2, "0");
+    const minuto = String(d.getMinutes()).padStart(2, "0");
+    const segundo = String(d.getSeconds()).padStart(2, "0");
+
+    return `${año}-${mes}-${dia} ${hora}:${minuto}:${segundo}`;
+}
+    
 async function iniciar() {
 
     // Obtener o crear ID del dispositivo
@@ -81,11 +96,11 @@ async function iniciar() {
                 text-align:center;
             ">
 
-                <h2>🔒 Solicitar acceso</h2>
+                <h2>🔒 Sol·licitar accés</h2>
 
                 <input
                     id="nombre"
-                    placeholder="Introduce tu nombre"
+                    placeholder="Nom"
                     style="
                         width:100%;
                         padding:12px;
@@ -119,11 +134,11 @@ async function iniciar() {
             const nombre = document.getElementById("nombre").value.trim();
 
             if (!nombre) {
-                alert("Introduce tu nombre.");
+                alert("Nom:");
                 return;
             }
 
-            const ahora = new Date().toISOString();
+            const ahora = fechaHora();
 
             await setDoc(dispositivoRef, {
                 nombre: nombre,
@@ -146,9 +161,8 @@ async function iniciar() {
                 padding:20px;
             ">
                 <div>
-                    <h2>🔒 Esperando autorización</h2>
-                    <p>Tu solicitud se ha enviado correctamente.</p>
-                    <p>Cuando el administrador la apruebe podrás acceder.</p>
+                    <h2>🔒 Esperant autorització</h2>
+                    <p>Sol·licitud registrada.</p>
                 </div>
             </div>
             `;
@@ -163,14 +177,14 @@ async function iniciar() {
 
     // Actualizar última conexión
     await updateDoc(dispositivoRef, {
-        ultimaConexion: new Date().toISOString()
+        ultimaConexion: fechaHora()
     });
 
     // Guardar fecha de aprobación la primera vez
     if (datos.permitido && !datos.fechaAprobacion) {
 
         await updateDoc(dispositivoRef, {
-            fechaAprobacion: new Date().toISOString()
+            fechaAprobacion: fechaHora()
         });
 
     }
@@ -197,9 +211,8 @@ async function iniciar() {
             padding:20px;
         ">
             <div>
-                <h2>🔒 Esperando autorización</h2>
-                <p>Tu solicitud ya está registrada.</p>
-                <p>Cuando el administrador la apruebe podrás acceder automáticamente.</p>
+                <h2>🔒 Esperant autorització</h2>
+                <p>Sol·licitud registrada.</p>
             </div>
         </div>
         `;
