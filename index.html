@@ -325,6 +325,8 @@ window.addEventListener("firebase-ready", () => {
 
 });
 
+        localStorage.setItem("canalesCache", JSON.stringify(d));
+        
         tarjetas = [];
         grid.innerHTML = "";
 
@@ -362,51 +364,98 @@ window.addEventListener("firebase-ready", () => {
 
     } catch {
 
-     if (intento < 15) {
+    // Intentar cargar desde la caché
+    const cache = localStorage.getItem("canalesCache");
 
-    grid.innerHTML = `
-    <div style="
-        display:flex;
-        justify-content:center;
-        align-items:flex-start;
-        width:100%;
-        padding-top:25px;
-        color:white;
-        font-size:20px;
-        font-family:Arial;
-        white-space:nowrap;
-    ">
-        Problemes en el servidor, intentant recarregar canals...
-    </div>
-`;
+    if (cache) {
 
-            setTimeout(() => {
-                cargarCanales(intento + 1);
-            }, 2000);
+        console.log("Canales cargados desde la caché");
 
- } else {
+        const d = JSON.parse(cache);
 
-       grid.innerHTML = `
-    <div style="
-        display:flex;
-        justify-content:center;
-        align-items:flex-start;
-        width:100%;
-        padding-top:25px;
-        color:white;
-        font-size:20px;
-        font-family:Arial;
-        white-space:nowrap;
-    ">
-        Error en el servidor.
-    </div>
-`;
+        tarjetas = [];
+        grid.innerHTML = "";
 
-        }
+        d.forEach(c => {
+
+            if (!c["LINK ACESTREAM"]) return;
+
+            let a = document.createElement("a");
+            a.className = "card";
+            a.href = c["LINK ACESTREAM"];
+            a.target = "_self";
+
+            let i = document.createElement("img");
+            i.loading = "lazy";
+            i.src = c.IMATGE || "";
+
+            i.onerror = function () {
+                this.src = "logo.png";
+            };
+
+            let p = document.createElement("p");
+            p.textContent = c.CANAL || "";
+
+            a.appendChild(i);
+            a.appendChild(p);
+
+            tarjetas.push({
+                nombre: (c.CANAL || "").toUpperCase(),
+                elemento: a
+            });
+
+            grid.appendChild(a);
+
+        });
+
+        return;
 
     }
 
-}   
+    // Si no hay caché, reintentar
+    if (intento < 15) {
+
+        grid.innerHTML = `
+        <div style="
+            display:flex;
+            justify-content:center;
+            align-items:flex-start;
+            width:100%;
+            padding-top:25px;
+            color:white;
+            font-size:20px;
+            font-family:Arial;
+            white-space:nowrap;
+        ">
+            Problemes en el servidor, intentant recarregar canals...
+        </div>
+        `;
+
+        setTimeout(() => {
+            cargarCanales(intento + 1);
+        }, 2000);
+
+    } else {
+
+        grid.innerHTML = `
+        <div style="
+            display:flex;
+            justify-content:center;
+            align-items:flex-start;
+            width:100%;
+            padding-top:25px;
+            color:white;
+            font-size:20px;
+            font-family:Arial;
+            white-space:nowrap;
+        ">
+            Error en el servidor.
+        </div>
+        `;
+
+    }
+
+}
 
 cargarCanales();
 
