@@ -274,7 +274,6 @@ const buscar = document.getElementById("buscar");
 const grid = document.getElementById("grid");
 
 window.addEventListener("firebase-ready", () => {
-
     // Si no está autorizado, mostrar mensaje
     if (!window.usuarioAutorizado) {
 
@@ -297,10 +296,17 @@ window.addEventListener("firebase-ready", () => {
     }
 
     // Cargar canales
-    fetch('https://opensheet.elk.sh/10eWMMZKgZgag_qlV4MBD-pPz5PRL24NVnJAZliREAWs/1')
-    .then(r => r.json())
-    .then(d => {
+    async function cargarCanales(intento = 1) {
 
+    try {
+
+        const r = await fetch("https://opensheet.elk.sh/10eWMMZKgZgag_qlV4MBD-pPz5PRL24NVnJAZliREAWs/1");
+
+        if (!r.ok) throw new Error();
+
+        const d = await r.json();
+
+        tarjetas = [];
         grid.innerHTML = "";
 
         d.forEach(c => {
@@ -312,9 +318,10 @@ window.addEventListener("firebase-ready", () => {
             a.href = c["LINK ACESTREAM"];
             a.target = "_self";
 
-           let i = document.createElement("img");
+            let i = document.createElement("img");
             i.loading = "lazy";
             i.src = c.IMATGE || "";
+
             i.onerror = function () {
                 this.src = "logo.png";
             };
@@ -334,10 +341,44 @@ window.addEventListener("firebase-ready", () => {
 
         });
 
-    })
-    .catch(() => {
-        grid.innerHTML = "Error cargando datos";
-    });
+    } catch {
+
+        if (intento < 3) {
+
+            grid.innerHTML = `
+                <div style="
+                    padding:30px;
+                    text-align:center;
+                    color:white;
+                    font-size:18px;">
+                    Reintentando carga...
+                </div>
+            `;
+
+            setTimeout(() => {
+                cargarCanales(intento + 1);
+            }, 2000);
+
+ } else {
+
+            grid.innerHTML = `
+                <div style="
+                    padding:30px;
+                    text-align:center;
+                    color:white;
+                    font-size:18px;">
+                    Error en el servidor.
+                    <br><br>
+                </div>
+            `;
+
+        }
+
+    }
+
+}   
+
+cargarCanales();
 
 });
 
