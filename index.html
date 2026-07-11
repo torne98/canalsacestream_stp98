@@ -300,11 +300,30 @@ window.addEventListener("firebase-ready", () => {
 
     try {
 
-        const r = await fetch("https://opensheet.elk.sh/10eWMMZKgZgag_qlV4MBD-pPz5PRL24NVnJAZliREAWs/1");
+        const SHEET_ID = "10eWMMZKgZgag_qlV4MBD-pPz5PRL24NVnJAZliREAWs";
+        const API_KEY = "AIzaSyAgXacbbjZ0LjVnHOhdKYY9c-ADdJcX_bQ";
+
+        const r = await fetch(
+        `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/1!A:Z?key=${API_KEY}`
+);
 
         if (!r.ok) throw new Error();
 
-        const d = await r.json();
+        const json = await r.json();
+
+        const cabeceras = json.values[0];
+
+        const d = json.values.slice(1).map(fila => {
+
+        let obj = {};
+
+    cabeceras.forEach((c, i) => {
+        obj[c] = fila[i] || "";
+    });
+
+    return obj;
+
+});
 
         tarjetas = [];
         grid.innerHTML = "";
