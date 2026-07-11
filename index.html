@@ -343,21 +343,22 @@ window.addEventListener("firebase-ready", () => {
 
     } catch {
 
-        if (intento < 15) {
+     if (intento < 15) {
 
-            grid.innerHTML = `
-                <div style="
-                    display:flex;
-                    justify-content:center;
-                    align-items:center;
-                    height:60vh;
-                    color:white;
-                    font-size:20px;
-                    text-align:center;
-                    font-family:Arial;
-                    Problemes en el servidor, intentant recarregar canals...
-                </div>
-            `;
+    grid.innerHTML = `
+        <div style="
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            height:60vh;
+            color:white;
+            font-size:20px;
+            text-align:center;
+            font-family:Arial;
+        ">
+            Problemes en el servidor, intentant recarregar canals...
+        </div>
+    `;
 
             setTimeout(() => {
                 cargarCanales(intento + 1);
@@ -366,18 +367,18 @@ window.addEventListener("firebase-ready", () => {
  } else {
 
             grid.innerHTML = `
-                <div style="
-                    display:flex;
-                    justify-content:center;
-                    align-items:center;
-                    height:60vh;
-                    color:white;
-                    font-size:20px;
-                    text-align:center;
-                    font-family:Arial;
-                    Error en el servidor.
-                    <br><br>
-                </div>
+    <div style="
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        height:60vh;
+        color:white;
+        font-size:20px;
+        text-align:center;
+        font-family:Arial;
+    ">
+        Error en el servidor.
+    </div>
             `;
 
         }
