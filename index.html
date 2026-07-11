@@ -346,19 +346,20 @@ window.addEventListener("firebase-ready", () => {
      if (intento < 15) {
 
     grid.innerHTML = `
-        <div style="
-            display:flex;
-            justify-content:center;
-            align-items:center;
-            height:60vh;
-            color:white;
-            font-size:20px;
-            text-align:center;
-            font-family:Arial;
-        ">
-            Problemes en el servidor, intentant recarregar canals...
-        </div>
-    `;
+    <div style="
+        display:flex;
+        justify-content:center;
+        align-items:flex-start;
+        width:100%;
+        padding-top:25px;
+        color:white;
+        font-size:20px;
+        font-family:Arial;
+        white-space:nowrap;
+    ">
+        Problemes en el servidor, intentant recarregar canals...
+    </div>
+`;
 
             setTimeout(() => {
                 cargarCanales(intento + 1);
@@ -366,20 +367,21 @@ window.addEventListener("firebase-ready", () => {
 
  } else {
 
-            grid.innerHTML = `
+       grid.innerHTML = `
     <div style="
         display:flex;
         justify-content:center;
-        align-items:center;
-        height:60vh;
+        align-items:flex-start;
+        width:100%;
+        padding-top:25px;
         color:white;
         font-size:20px;
-        text-align:center;
         font-family:Arial;
+        white-space:nowrap;
     ">
         Error en el servidor.
     </div>
-            `;
+`;
 
         }
 
