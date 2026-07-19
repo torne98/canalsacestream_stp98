@@ -325,7 +325,11 @@ window.addEventListener("firebase-ready", () => {
 
 });
 
-        localStorage.setItem("canalesCache", JSON.stringify(d));
+        const nuevaCache = JSON.stringify(d);
+       
+    if (localStorage.getItem("canalesCache") !== nuevaCache) {
+    localStorage.setItem("canalesCache", nuevaCache);
+    console.log("Caché actualizada");
         
         tarjetas = [];
         grid.innerHTML = "";
