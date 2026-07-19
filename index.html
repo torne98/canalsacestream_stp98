@@ -325,16 +325,17 @@ window.addEventListener("firebase-ready", () => {
 
 });
 
-        const nuevaCache = JSON.stringify(d);
-       
-    if (localStorage.getItem("canalesCache") !== nuevaCache) {
+const nuevaCache = JSON.stringify(d);
+
+if (localStorage.getItem("canalesCache") !== nuevaCache) {
     localStorage.setItem("canalesCache", nuevaCache);
     console.log("Caché actualizada");
-        
-        tarjetas = [];
-        grid.innerHTML = "";
+}
 
-        d.forEach(c => {
+tarjetas = [];
+grid.innerHTML = "";
+
+d.forEach(c => {
 
             if (!c["LINK ACESTREAM"]) return;
 
